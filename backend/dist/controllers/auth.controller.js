@@ -8,9 +8,9 @@ const login = async (req, res) => {
         return res.status(400).json({ message: 'Email is required' });
     }
     try {
-        const [rows] = await db_1.db.query(`SELECT id, name, email, role, avatar, enabled 
+        const { rows } = await db_1.db.query(`SELECT id, name, email, role, avatar, enabled 
        FROM users 
-       WHERE email = ? AND enabled = 1`, [email]);
+       WHERE email = $1 AND enabled = true`, [email]);
         if (rows.length === 0) {
             return res.status(401).json({ message: 'Invalid user' });
         }

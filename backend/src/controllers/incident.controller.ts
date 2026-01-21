@@ -13,7 +13,7 @@ export const createIncident = async (req: Request, res: Response) => {
     await db.query(
       `INSERT INTO incidents 
        (id, title, description, status, priority, created_by, creator_name, created_at, updated_at)
-       VALUES (?, ?, ?, 'OPEN', ?, ?, ?, ?, ?)`,
+       VALUES ($1, $2, $3, 'OPEN', $4, $5, $6, $7, $8)`,
       [id, title, description, priority, createdBy, creatorName, now, now]
     );
 
@@ -27,7 +27,7 @@ export const createIncident = async (req: Request, res: Response) => {
 /* ---------------- GET ALL INCIDENTS ---------------- */
 export const getIncidents = async (_req: Request, res: Response) => {
   try {
-    const [rows] = await db.query(
+    const { rows } = await db.query(
       `SELECT * FROM incidents ORDER BY created_at DESC`
     );
     res.json(rows);
@@ -42,8 +42,8 @@ export const getIncidentById = async (req: Request, res: Response) => {
   const { id } = req.params;
 
   try {
-    const [rows]: any = await db.query(
-      `SELECT * FROM incidents WHERE id = ?`,
+    const { rows } = await db.query(
+      `SELECT * FROM incidents WHERE id = $1`,
       [id]
     );
 
@@ -64,8 +64,8 @@ export const updateIncidentStatus = async (req: Request, res: Response) => {
   try {
     await db.query(
       `UPDATE incidents 
-       SET status = ?, updated_at = ? 
-       WHERE id = ?`,
+       SET status = $1, updated_at = $2 
+       WHERE id = $3`,
       [status, new Date(), id]
     );
 

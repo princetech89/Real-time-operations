@@ -10,10 +10,11 @@ const addComment = async (req, res) => {
         const now = new Date();
         await db_1.db.query(`INSERT INTO incident_comments 
        (id, incident_id, user_id, user_name, content, created_at)
-       VALUES (?, ?, ?, ?, ?, ?)`, [id, incidentId, userId, userName, content, now]);
+       VALUES ($1, $2, $3, $4, $5, $6)`, [id, incidentId, userId, userName, content, now]);
         res.json({ id, created_at: now });
     }
-    catch {
+    catch (error) {
+        console.error('ADD COMMENT ERROR:', error);
         res.status(500).json({ message: 'Failed to add comment' });
     }
 };
@@ -21,12 +22,13 @@ exports.addComment = addComment;
 const getCommentsByIncident = async (req, res) => {
     const { id } = req.params;
     try {
-        const [rows] = await db_1.db.query(`SELECT * FROM incident_comments 
-       WHERE incident_id = ? 
+        const { rows } = await db_1.db.query(`SELECT * FROM incident_comments 
+       WHERE incident_id = $1 
        ORDER BY created_at ASC`, [id]);
         res.json(rows);
     }
-    catch {
+    catch (error) {
+        console.error('FETCH COMMENTS ERROR:', error);
         res.status(500).json({ message: 'Failed to fetch comments' });
     }
 };

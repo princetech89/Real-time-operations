@@ -10,9 +10,9 @@ export const addComment = async (req: Request, res: Response) => {
     const now = new Date();
 
     await db.query(
-      `INSERT INTO incident_comments 
+      `INSERT INTO comments 
        (id, incident_id, user_id, user_name, content, created_at)
-       VALUES (?, ?, ?, ?, ?, ?)`,
+       VALUES ($1, $2, $3, $4, $5, $6)`,
       [id, incidentId, userId, userName, content, now]
     );
 
@@ -27,9 +27,9 @@ export const getCommentsByIncident = async (req: Request, res: Response) => {
   const { id } = req.params;
 
   try {
-    const [rows] = await db.query(
-      `SELECT * FROM incident_comments 
-       WHERE incident_id = ? 
+    const { rows } = await db.query(
+      `SELECT * FROM comments 
+       WHERE incident_id = $1 
        ORDER BY created_at ASC`,
       [id]
     );

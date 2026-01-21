@@ -10,7 +10,7 @@ const createAuditLog = async (req, res) => {
         await db_1.db.query(`
       INSERT INTO audit_logs
       (id, user_id, user_name, action, entity_id, entity_type, target, details)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
       `, [
             (0, uuid_1.v4)(),
             userId,
@@ -32,7 +32,7 @@ exports.createAuditLog = createAuditLog;
 /* ================= GET AUDIT LOGS ================= */
 const getAuditLogs = async (_req, res) => {
     try {
-        const [rows] = await db_1.db.query(`
+        const { rows } = await db_1.db.query(`
       SELECT action, entity_type, details, created_at
       FROM audit_logs
       ORDER BY created_at DESC

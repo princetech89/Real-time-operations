@@ -11,10 +11,11 @@ const createIncident = async (req, res) => {
         const now = new Date();
         await db_1.db.query(`INSERT INTO incidents 
        (id, title, description, status, priority, created_by, creator_name, created_at, updated_at)
-       VALUES (?, ?, ?, 'OPEN', ?, ?, ?, ?, ?)`, [id, title, description, priority, createdBy, creatorName, now, now]);
+       VALUES ($1, $2, $3, 'OPEN', $4, $5, $6, $7, $8)`, [id, title, description, priority, createdBy, creatorName, now, now]);
         res.json({ id });
     }
     catch (err) {
+        console.error('CREATE INCIDENT ERROR:', err);
         res.status(500).json({ message: 'Failed to create incident' });
     }
 };
@@ -22,10 +23,11 @@ exports.createIncident = createIncident;
 /* ---------------- GET ALL INCIDENTS ---------------- */
 const getIncidents = async (_req, res) => {
     try {
-        const [rows] = await db_1.db.query(`SELECT * FROM incidents ORDER BY created_at DESC`);
+        const { rows } = await db_1.db.query(`SELECT * FROM incidents ORDER BY created_at DESC`);
         res.json(rows);
     }
-    catch {
+    catch (error) {
+        console.error('FETCH INCIDENTS ERROR:', error);
         res.status(500).json({ message: 'Failed to fetch incidents' });
     }
 };
@@ -34,13 +36,14 @@ exports.getIncidents = getIncidents;
 const getIncidentById = async (req, res) => {
     const { id } = req.params;
     try {
-        const [rows] = await db_1.db.query(`SELECT * FROM incidents WHERE id = ?`, [id]);
+        const { rows } = await db_1.db.query(`SELECT * FROM incidents WHERE id = $1`, [id]);
         if (!rows.length) {
             return res.status(404).json({ message: 'Incident not found' });
         }
         res.json(rows[0]);
     }
-    catch {
+    catch (error) {
+        console.error('FETCH INCIDENT BY ID ERROR:', error);
         res.status(500).json({ message: 'Failed to fetch incident' });
     }
 };
@@ -50,11 +53,12 @@ const updateIncidentStatus = async (req, res) => {
     const { status } = req.body;
     try {
         await db_1.db.query(`UPDATE incidents 
-       SET status = ?, updated_at = ? 
-       WHERE id = ?`, [status, new Date(), id]);
+       SET status = $1, updated_at = $2 
+       WHERE id = $3`, [status, new Date(), id]);
         res.json({ message: 'Status updated' });
     }
-    catch {
+    catch (error) {
+        console.error('UPDATE STATUS ERROR:', error);
         res.status(500).json({ message: 'Failed to update status' });
     }
 };

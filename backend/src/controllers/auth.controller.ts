@@ -9,10 +9,10 @@ export const login = async (req: Request, res: Response) => {
   }
 
   try {
-    const [rows]: any = await db.query(
+    const { rows } = await db.query(
       `SELECT id, name, email, role, avatar, enabled 
        FROM users 
-       WHERE email = ? AND enabled = 1`,
+       WHERE email = $1 AND enabled = true`,
       [email]
     );
 

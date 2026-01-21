@@ -4,7 +4,7 @@ import { db } from '../config/db';
 /* ---------------- GET USERS ---------------- */
 export const getUsers = async (_req: Request, res: Response) => {
     try {
-        const [rows] = await db.query(
+        const { rows } = await db.query(
             `SELECT id, name, email, role, avatar, enabled FROM users ORDER BY name ASC`
         );
         res.json(rows);
@@ -20,7 +20,7 @@ export const updateUserRole = async (req: Request, res: Response) => {
     const { role } = req.body;
 
     try {
-        await db.query(`UPDATE users SET role = ? WHERE id = ?`, [role, id]);
+        await db.query(`UPDATE users SET role = $1 WHERE id = $2`, [role, id]);
         res.json({ message: 'User role updated' });
     } catch (error) {
         console.error('UPDATE ROLE ERROR:', error);
@@ -34,7 +34,7 @@ export const toggleUserStatus = async (req: Request, res: Response) => {
     const { enabled } = req.body; // Expect boolean
 
     try {
-        await db.query(`UPDATE users SET enabled = ? WHERE id = ?`, [enabled, id]);
+        await db.query(`UPDATE users SET enabled = $1 WHERE id = $2`, [enabled, id]);
         res.json({ message: 'User status updated' });
     } catch (error) {
         console.error('TOGGLE STATUS ERROR:', error);

@@ -26,7 +26,7 @@ app.get('/', (_req, res) => {
 app.get('/api/health', async (_req, res) => {
   try {
     await db.query('SELECT 1');
-    res.json({ status: 'Backend + MySQL connected ✅' });
+    res.json({ status: 'Backend + PostgreSQL connected ✅' });
   } catch (error) {
     console.error(error);
     res.status(500).json({ status: 'Database connection failed ❌' });

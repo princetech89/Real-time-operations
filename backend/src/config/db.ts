@@ -1,30 +1,35 @@
-import mysql from 'mysql2/promise';
+import { Pool } from 'pg';
 
 /**
- * MySQL Connection Pool
+ * PostgreSQL Connection Pool
  * Uses ENV variables for deployment
  */
-export const db = mysql.createPool({
+export const db = new Pool({
   host: process.env.DB_HOST || 'localhost',
+  port: parseInt(process.env.DB_PORT || '5432'),
   user: process.env.DB_USER || 'root',
   password: process.env.DB_PASSWORD || '',
   database: process.env.DB_NAME || 'sentinel_ops',
-  waitForConnections: true,
-  connectionLimit: 10,
-  queueLimit: 0,
+  ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
 });
+
+/**
+ * Helper to maintain compatibility with mysql2's query style where needed
+ * or to provide a unified interface.
+ */
+export const query = (text: string, params?: any[]) => db.query(text, params);
 
 /**
  * Optional: Test DB connection on startup
  */
 export const testDbConnection = async () => {
   try {
-    const connection = await db.getConnection();
-    await connection.query('SELECT 1');
-    connection.release();
-    console.log('✅ MySQL connected successfully');
+    const client = await db.connect();
+    await client.query('SELECT 1');
+    client.release();
+    console.log('✅ PostgreSQL connected successfully');
   } catch (error) {
-    console.error('❌ MySQL connection failed:', error);
-    process.exit(1);
+    console.error('❌ PostgreSQL connection failed:', error);
+    // process.exit(1); // Consider keeping it alive if you want health checks to work
   }
 };

@@ -11,6 +11,7 @@ const auth_routes_1 = __importDefault(require("./routes/auth.routes"));
 const incident_routes_1 = __importDefault(require("./routes/incident.routes"));
 const comment_routes_1 = __importDefault(require("./routes/comment.routes")); // ✅ NEW
 const audit_routes_1 = __importDefault(require("./routes/audit.routes"));
+const user_routes_1 = __importDefault(require("./routes/user.routes")); // ✅ NEW
 const app = (0, express_1.default)();
 /* -------------------- MIDDLEWARE -------------------- */
 app.use((0, cors_1.default)());
@@ -23,7 +24,7 @@ app.get('/', (_req, res) => {
 app.get('/api/health', async (_req, res) => {
     try {
         await db_1.db.query('SELECT 1');
-        res.json({ status: 'Backend + MySQL connected ✅' });
+        res.json({ status: 'Backend + PostgreSQL connected ✅' });
     }
     catch (error) {
         console.error(error);
@@ -36,8 +37,10 @@ app.use('/api/incidents', incident_routes_1.default);
 app.use('/api/comments', comment_routes_1.default); // ✅ NEW (PERSIST COMMENTS)
 app.use('/api/audit', audit_routes_1.default);
 app.use('/api/audit-logs', audit_routes_1.default);
+app.use('/api/users', user_routes_1.default); // ✅ NEW
 /* -------------------- SERVER START -------------------- */
-app.listen(5000, () => {
-    console.log('Backend running on http://localhost:5000');
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+    console.log(`Backend running on http://localhost:${PORT}`);
     (0, db_1.testDbConnection)();
 });
