@@ -1,4 +1,4 @@
-const BASE_URL = 'http://localhost:5000/api';
+const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
 
 export const api = {
   /* ================= AUTH ================= */
@@ -97,6 +97,33 @@ export const api = {
   getAuditLogs: async () => {
     const res = await fetch(`${BASE_URL}/audit-logs`);
     if (!res.ok) throw new Error('Failed to fetch audit logs');
+    return res.json();
+  },
+
+  /* ================= USERS ================= */
+  getUsers: async () => {
+    const res = await fetch(`${BASE_URL}/users`);
+    if (!res.ok) throw new Error('Failed to fetch users');
+    return res.json();
+  },
+
+  updateUserRole: async (id: string, role: string) => {
+    const res = await fetch(`${BASE_URL}/users/${id}/role`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ role })
+    });
+    if (!res.ok) throw new Error('Failed to update user role');
+    return res.json();
+  },
+
+  toggleUserStatus: async (id: string, enabled: boolean) => {
+    const res = await fetch(`${BASE_URL}/users/${id}/status`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ enabled })
+    });
+    if (!res.ok) throw new Error('Failed to update user status');
     return res.json();
   }
 };

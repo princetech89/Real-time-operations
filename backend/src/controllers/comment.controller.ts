@@ -17,7 +17,8 @@ export const addComment = async (req: Request, res: Response) => {
     );
 
     res.json({ id, created_at: now });
-  } catch {
+  } catch (error) {
+    console.error('ADD COMMENT ERROR:', error);
     res.status(500).json({ message: 'Failed to add comment' });
   }
 };
@@ -34,7 +35,8 @@ export const getCommentsByIncident = async (req: Request, res: Response) => {
     );
 
     res.json(rows);
-  } catch {
+  } catch (error) {
+    console.error('FETCH COMMENTS ERROR:', error);
     res.status(500).json({ message: 'Failed to fetch comments' });
   }
 };

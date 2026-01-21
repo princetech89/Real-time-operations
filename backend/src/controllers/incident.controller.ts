@@ -19,6 +19,7 @@ export const createIncident = async (req: Request, res: Response) => {
 
     res.json({ id });
   } catch (err) {
+    console.error('CREATE INCIDENT ERROR:', err);
     res.status(500).json({ message: 'Failed to create incident' });
   }
 };
@@ -30,7 +31,8 @@ export const getIncidents = async (_req: Request, res: Response) => {
       `SELECT * FROM incidents ORDER BY created_at DESC`
     );
     res.json(rows);
-  } catch {
+  } catch (error) {
+    console.error('FETCH INCIDENTS ERROR:', error);
     res.status(500).json({ message: 'Failed to fetch incidents' });
   }
 };
@@ -50,7 +52,8 @@ export const getIncidentById = async (req: Request, res: Response) => {
     }
 
     res.json(rows[0]);
-  } catch {
+  } catch (error) {
+    console.error('FETCH INCIDENT BY ID ERROR:', error);
     res.status(500).json({ message: 'Failed to fetch incident' });
   }
 };
@@ -67,7 +70,8 @@ export const updateIncidentStatus = async (req: Request, res: Response) => {
     );
 
     res.json({ message: 'Status updated' });
-  } catch {
+  } catch (error) {
+    console.error('UPDATE STATUS ERROR:', error);
     res.status(500).json({ message: 'Failed to update status' });
   }
 };

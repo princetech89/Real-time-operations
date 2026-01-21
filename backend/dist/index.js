@@ -39,4 +39,5 @@ app.use('/api/audit-logs', audit_routes_1.default);
 /* -------------------- SERVER START -------------------- */
 app.listen(5000, () => {
     console.log('Backend running on http://localhost:5000');
+    (0, db_1.testDbConnection)();
 });

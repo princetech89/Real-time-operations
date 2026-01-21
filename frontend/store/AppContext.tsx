@@ -48,7 +48,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
   /* ---------------- AUTH ---------------- */
   const [currentUser, setCurrentUser] = useState<User | null>(() => {
     const saved = localStorage.getItem('sentinel_user');
-    return saved ? JSON.parse(saved) : null;
+    try {
+      return saved ? JSON.parse(saved) : null;
+    } catch (e) {
+      console.error("Failed to parse user from local storage", e);
+      localStorage.removeItem('sentinel_user');
+      return null;
+    }
   });
 
   /* ---------------- DATA ---------------- */
@@ -76,7 +82,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
           comments: []
         }))
       );
-    });
+    }).catch(e => console.error("Failed to load incidents", e));
   }, []);
 
   /* ---------------- LOAD AUDIT LOGS FROM DB ---------------- */
@@ -94,8 +100,15 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
           timestamp: l.created_at
         }))
       );
-    });
+    }).catch(e => console.error("Failed to load audit logs", e));
   }, []);
+
+  /* ---------------- LOAD USERS (ADMIN ONLY) ---------------- */
+  useEffect(() => {
+    if (currentUser?.role === UserRole.ADMIN) {
+      api.getUsers().then(setUsers).catch(console.error);
+    }
+  }, [currentUser]);
 
   /* ---------------- AUDIT LOG (PERSISTED) ---------------- */
   const addLog = useCallback(
@@ -195,19 +208,19 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
       prev.map((inc) =>
         inc.id === incidentId
           ? {
-              ...inc,
-              comments: [
-                ...inc.comments,
-                {
-                  id: res.id,
-                  userId: currentUser.id,
-                  userName: currentUser.name,
-                  content,
-                  createdAt: res.created_at
-                } as IncidentComment
-              ],
-              updatedAt: new Date().toISOString()
-            }
+            ...inc,
+            comments: [
+              ...inc.comments,
+              {
+                id: res.id,
+                userId: currentUser.id,
+                userName: currentUser.name,
+                content,
+                createdAt: res.created_at
+              } as IncidentComment
+            ],
+            updatedAt: new Date().toISOString()
+          }
           : inc
       )
     );
@@ -215,13 +228,19 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
     await addLog('ADD_COMMENT', incidentId, 'INCIDENT', 'New comment added');
   };
 
-  /* ---------------- USER ACTIONS (UI ONLY) ---------------- */
-  const updateUserRole = (id: string, role: UserRole) => {
-    setUsers((prev) =>
-      prev.map((u) =>
-        u.id === id ? { ...u, role } : u
-      )
-    );
+  /* ---------------- USER ACTIONS (UI + API) ---------------- */
+  const updateUserRole = async (id: string, role: UserRole) => {
+    try {
+      await api.updateUserRole(id, role);
+      setUsers((prev) =>
+        prev.map((u) =>
+          u.id === id ? { ...u, role } : u
+        )
+      );
+      await addLog('UPDATE_ROLE', id, 'USER', `Changed role to ${role}`);
+    } catch (error) {
+      console.error("Failed to update user role", error);
+    }
   };
 
   const toggleUserStatus = (id: string) => {

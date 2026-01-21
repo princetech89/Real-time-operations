@@ -2,12 +2,14 @@ import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 
-import { db } from './config/db';
+import { db, testDbConnection } from './config/db';
 
 import authRoutes from './routes/auth.routes';
 import incidentRoutes from './routes/incident.routes';
 import commentRoutes from './routes/comment.routes'; // ✅ NEW
 import auditRoutes from './routes/audit.routes';
+import userRoutes from './routes/user.routes'; // ✅ NEW
+
 
 const app = express();
 
@@ -38,8 +40,12 @@ app.use('/api/comments', commentRoutes); // ✅ NEW (PERSIST COMMENTS)
 
 app.use('/api/audit', auditRoutes);
 app.use('/api/audit-logs', auditRoutes);
+app.use('/api/users', userRoutes); // ✅ NEW
+
 
 /* -------------------- SERVER START -------------------- */
-app.listen(5000, () => {
-  console.log('Backend running on http://localhost:5000');
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log(`Backend running on http://localhost:${PORT}`);
+  testDbConnection();
 });
