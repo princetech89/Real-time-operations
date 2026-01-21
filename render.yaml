@@ -11,6 +11,20 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
+      - key: DB_HOST
+        value: dpg-d5ogurt6ubrc73f8oo6g-a.oregon-postgres.render.com
+      - key: DB_PORT
+        value: "5432"
+      - key: DB_NAME
+        value: sentinel_ops
+      - key: DB_USER
+        value: sentinel_ops_user
+      - key: DB_PASSWORD
+        value: 4HhTlE2BV29rwEeHxRBliIyszoBIX7Tc
+      - key: DB_SSL
+        value: "true"
+      - key: PORT
+        value: "5000"
 
   # Frontend Service (Static Site)
   - type: static
