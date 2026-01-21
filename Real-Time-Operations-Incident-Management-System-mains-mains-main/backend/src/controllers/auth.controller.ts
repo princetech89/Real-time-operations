@@ -1,0 +1,28 @@
+import { Request, Response } from 'express';
+import { db } from '../config/db';
+
+export const login = async (req: Request, res: Response) => {
+  const { email } = req.body;
+
+  if (!email) {
+    return res.status(400).json({ message: 'Email is required' });
+  }
+
+  try {
+    const [rows]: any = await db.query(
+      `SELECT id, name, email, role, avatar, enabled 
+       FROM users 
+       WHERE email = ? AND enabled = 1`,
+      [email]
+    );
+
+    if (rows.length === 0) {
+      return res.status(401).json({ message: 'Invalid user' });
+    }
+
+    res.json(rows[0]);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Login failed' });
+  }
+};
