@@ -1,0 +1,25 @@
+services:
+  # Backend Service
+  - type: web
+    name: sentinel-backend
+    env: node
+    rootDir: backend
+    # CRITICAL: buildCommand must FINISH. 'npm run dev' runs forever, causing timeout.
+    buildCommand: npm install && npm run build
+    # CRITICAL: startCommand runs the server. 'npm run dev' is blocked by permission.
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+
+  # Frontend Service (Static Site)
+  - type: static
+    name: sentinel-frontend
+    env: static
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
